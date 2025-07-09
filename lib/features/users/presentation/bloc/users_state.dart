@@ -17,3 +17,11 @@ class UsersError extends UsersState {
   final String message;
   UsersError(this.message);
 }
+
+class UserUpdated extends UsersState {
+  final List<UserEntity> users;
+  final UserEntity updatedUser;
+  final bool hasReachedMax;
+
+  UserUpdated(this.users, this.updatedUser, {this.hasReachedMax = false});
+}

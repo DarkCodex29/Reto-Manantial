@@ -231,8 +231,6 @@ class UserCard extends StatelessWidget {
   Future<void> _makePhoneCall(String phoneNumber) async {
     try {
       await getIt<PhoneService>().makePhoneCall(phoneNumber);
-    } catch (e) {
-      debugPrint('Error al realizar la llamada: $e');
-    }
+    } catch (e) {}
   }
 }

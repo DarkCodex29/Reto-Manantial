@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/services/notification_service.dart';
+import '../../../../core/services/connectivity_service.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/usecases/get_users_usecase.dart';
 import '../../domain/usecases/create_user_usecase.dart';
@@ -17,6 +18,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
   final UpdateUserUseCase updateUserUseCase;
   final DeleteUserUseCase deleteUserUseCase;
   final NotificationService notificationService;
+  final ConnectivityService connectivityService;
 
   UsersBloc({
     required this.getUsersUseCase,
@@ -24,12 +26,15 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
     required this.updateUserUseCase,
     required this.deleteUserUseCase,
     required this.notificationService,
+    required this.connectivityService,
   }) : super(UsersInitial()) {
     on<LoadUsersEvent>(_onLoadUsers);
     on<CreateUserEvent>(_onCreateUser);
     on<DeleteUserEvent>(_onDeleteUser);
     on<UpdateUserEvent>(_onUpdateUser);
     on<ToggleFavoriteEvent>(_onToggleFavorite);
+    on<UserUpdatedEvent>(_onUserUpdated);
+    on<UserDeletedEvent>(_onUserDeleted);
   }
 
   List<UserEntity> _allUsers = [];
@@ -40,7 +45,17 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
   ) async {
     emit(UsersLoading());
     try {
-      _allUsers = await getUsersUseCase();
+      final isConnected = await connectivityService.isConnected;
+      
+      if (!isConnected) {
+        _allUsers = await getUsersUseCase();
+        if (_allUsers.isEmpty) {
+          emit(UsersError('Sin conexión a internet y no hay datos almacenados'));
+          return;
+        }
+      } else {
+        _allUsers = await getUsersUseCase();
+      }
 
       emit(UsersLoaded(_allUsers, hasReachedMax: true));
 
@@ -68,7 +83,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
   ) async {
     try {
       await deleteUserUseCase(event.userId);
-      add(LoadUsersEvent());
+      add(UserDeletedEvent(event.userId));
     } catch (e) {
       emit(UsersError(e.toString()));
     }
@@ -80,7 +95,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
   ) async {
     try {
       await updateUserUseCase(event.user);
-      add(LoadUsersEvent());
+      add(UserUpdatedEvent(event.user));
     } catch (e) {
       emit(UsersError(e.toString()));
     }
@@ -95,9 +110,47 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
         isFavorite: !event.user.isFavorite,
       );
       await updateUserUseCase(updatedUser);
-      add(LoadUsersEvent());
+      add(UserUpdatedEvent(updatedUser));
     } catch (e) {
       emit(UsersError(e.toString()));
+    }
+  }
+
+  Future<void> _onUserUpdated(
+    UserUpdatedEvent event,
+    Emitter<UsersState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is UsersLoaded || currentState is UserUpdated) {
+      final currentUsers = currentState is UsersLoaded 
+          ? currentState.users 
+          : (currentState as UserUpdated).users;
+      
+      final updatedUsers = currentUsers.map((user) {
+        return user.id == event.user.id ? event.user : user;
+      }).toList();
+      
+      _allUsers = _allUsers.map((user) {
+        return user.id == event.user.id ? event.user : user;
+      }).toList();
+      
+      final hasReachedMax = currentState is UsersLoaded 
+          ? currentState.hasReachedMax 
+          : (currentState as UserUpdated).hasReachedMax;
+      
+      emit(UserUpdated(updatedUsers, event.user, hasReachedMax: hasReachedMax));
+    }
+  }
+
+  Future<void> _onUserDeleted(
+    UserDeletedEvent event,
+    Emitter<UsersState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is UsersLoaded) {
+      final updatedUsers = currentState.users.where((user) => user.id != event.userId).toList();
+      _allUsers = _allUsers.where((user) => user.id != event.userId).toList();
+      emit(UsersLoaded(updatedUsers, hasReachedMax: currentState.hasReachedMax));
     }
   }
 }

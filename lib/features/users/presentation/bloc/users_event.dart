@@ -23,3 +23,13 @@ class ToggleFavoriteEvent extends UsersEvent {
   final UserEntity user;
   ToggleFavoriteEvent(this.user);
 }
+
+class UserUpdatedEvent extends UsersEvent {
+  final UserEntity user;
+  UserUpdatedEvent(this.user);
+}
+
+class UserDeletedEvent extends UsersEvent {
+  final int userId;
+  UserDeletedEvent(this.userId);
+}
