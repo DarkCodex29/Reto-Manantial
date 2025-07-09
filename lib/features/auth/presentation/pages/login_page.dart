@@ -109,7 +109,7 @@ class _LoginViewState extends State<LoginView> {
                           BlocBuilder<AuthBloc, AuthState>(
                             builder: (context, state) {
                               return LoginButton(
-                                isLoading: state is AuthLoading,
+                                isLoading: state is AuthLoadingEmail,
                                 onPressed: () {
                                   if (_formKey.currentState?.validate() ??
                                       false) {
@@ -148,7 +148,7 @@ class _LoginViewState extends State<LoginView> {
                           BlocBuilder<AuthBloc, AuthState>(
                             builder: (context, state) {
                               return GoogleSignInButton(
-                                isLoading: state is AuthLoading,
+                                isLoading: state is AuthLoadingGoogle,
                                 onPressed: () {
                                   context.read<AuthBloc>().add(
                                     AuthSignInWithGoogleRequested(),

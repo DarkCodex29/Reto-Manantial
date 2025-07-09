@@ -5,6 +5,7 @@ import '../../features/users/domain/entities/user_entity.dart';
 @singleton
 class NotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
+  bool _notificationsScheduled = false;
 
   NotificationService()
     : _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -78,6 +79,8 @@ class NotificationService {
   }
 
   Future<void> scheduleUserNotifications(List<UserEntity> users) async {
+    if (_notificationsScheduled) return;
+    
     await _flutterLocalNotificationsPlugin.cancelAll();
 
     for (final user in users) {
@@ -85,6 +88,8 @@ class NotificationService {
         await showUserNotification(user);
       }
     }
+    
+    _notificationsScheduled = true;
   }
 
   Future<void> cancelAllNotifications() async {

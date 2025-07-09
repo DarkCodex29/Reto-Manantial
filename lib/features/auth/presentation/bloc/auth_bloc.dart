@@ -56,7 +56,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthSignInWithEmailRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
+    emit(AuthLoadingEmail());
     
     try {
       final user = await _signInWithEmail(event.email, event.password);
@@ -70,7 +70,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthSignInWithGoogleRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
+    emit(AuthLoadingGoogle());
     
     try {
       final user = await _signInWithGoogle();

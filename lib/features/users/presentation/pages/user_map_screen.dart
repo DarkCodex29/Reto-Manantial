@@ -17,6 +17,7 @@ class _UserMapScreenState extends State<UserMapScreen> {
   final MapController _mapController = MapController();
   List<Marker> _markers = [];
   LatLng? _mapCenter;
+  bool _showUsers = true;
 
   static const LatLng _fallbackLatLng = LatLng(-6.7714, -79.8409);
 
@@ -51,10 +52,20 @@ class _UserMapScreenState extends State<UserMapScreen> {
           title: const Text('Mapa de Usuarios'),
           backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+          ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.list),
-              onPressed: () => Navigator.pop(context),
+              icon: Icon(_showUsers ? Icons.visibility : Icons.visibility_off),
+              onPressed: () {
+                setState(() {
+                  _showUsers = !_showUsers;
+                });
+              },
+              tooltip: _showUsers ? 'Ocultar usuarios' : 'Mostrar usuarios',
             ),
           ],
         ),
@@ -91,7 +102,7 @@ class _UserMapScreenState extends State<UserMapScreen> {
                         subdomains: ['a', 'b', 'c'],
                         userAgentPackageName: 'com.example.reto_manantial',
                       ),
-                      MarkerLayer(markers: _markers),
+                      if (_showUsers) MarkerLayer(markers: _markers),
                     ],
                   );
                 } else if (state is UsersLoading) {
@@ -140,8 +151,6 @@ class _UserMapScreenState extends State<UserMapScreen> {
       ),
     );
   }
-
-  // _updateMarkers eliminado; ahora se calcula directamente en el builder
 
   void _centerMapOnUsers() {
     if (_markers.isEmpty) return;

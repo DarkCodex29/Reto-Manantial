@@ -54,15 +54,10 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
     CreateUserEvent event,
     Emitter<UsersState> emit,
   ) async {
-    print('DEBUG UsersBloc -> _onCreateUser: id=${event.user.id}');
     try {
-      print('DEBUG UsersBloc -> llama createUserUseCase');
       await createUserUseCase(event.user);
-      print('DEBUG UsersBloc -> createUserUseCase OK');
       add(LoadUsersEvent());
-    } catch (e, st) {
-      print('DEBUG UsersBloc -> createUserUseCase ERROR: $e');
-      print(st);
+    } catch (e) {
       emit(UsersError(e.toString()));
     }
   }

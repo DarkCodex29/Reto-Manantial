@@ -39,7 +39,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Agregar Usuario'),
+        title: const Text('Agregar usuario'),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
@@ -175,7 +175,6 @@ class _AddUserScreenState extends State<AddUserScreen> {
                   ),
                   validator: (value) {
                     if (value != null && value.isNotEmpty) {
-                      // Validar formato básico de teléfono
                       if (!RegExp(r'^[+]?[\d\s\-\(\)]+$').hasMatch(value)) {
                         return 'Formato de teléfono no válido';
                       }
@@ -246,7 +245,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
                               ),
                             )
                           : const Text(
-                              'Guardar Usuario',
+                              'Guardar usuario',
                               style: TextStyle(fontSize: 16),
                             ),
                     );
@@ -286,9 +285,6 @@ class _AddUserScreenState extends State<AddUserScreen> {
         isLocal: true,
       );
 
-      print(
-        'DEBUG AddUserScreen -> Crear usuario: id=${user.id}, desc=${user.description}, lat=${user.latitude}, lng=${user.longitude}, fav=$_isFavorite, alert=$_enableAlert',
-      );
       context.read<UsersBloc>().add(CreateUserEvent(user));
     }
   }
@@ -303,19 +299,23 @@ class _AddUserScreenState extends State<AddUserScreen> {
         _longitudeController.text = position.longitude.toString();
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ubicación obtenida exitosamente'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ubicación obtenida exitosamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error al obtener ubicación: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al obtener ubicación: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

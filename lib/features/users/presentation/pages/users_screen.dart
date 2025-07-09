@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/utils/page_transitions.dart';
 import '../bloc/users_bloc.dart';
 import '../widgets/user_card.dart';
 import '../widgets/user_skeleton.dart';
@@ -39,8 +40,9 @@ class _UsersScreenState extends State<UsersScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const UserMapScreen(),
+                  SlidePageRoute(
+                    child: const UserMapScreen(),
+                    direction: AxisDirection.left,
                   ),
                 );
               },
@@ -157,8 +159,8 @@ class _UsersScreenState extends State<UsersScreen> {
             final usersBloc = context.read<UsersBloc>();
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => BlocProvider.value(
+              ScalePageRoute(
+                child: BlocProvider.value(
                   value: usersBloc,
                   child: const AddUserScreen(),
                 ),
@@ -251,7 +253,7 @@ class _UsersScreenState extends State<UsersScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Eliminar Usuario'),
+        title: const Text('Eliminar usuario'),
         content: Text(
           '¿Estás seguro de que quieres eliminar a ${user.description}?',
         ),
@@ -266,7 +268,10 @@ class _UsersScreenState extends State<UsersScreen> {
               Navigator.pop(dialogContext);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Eliminar'),
+            child: const Text(
+              'Eliminar',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),

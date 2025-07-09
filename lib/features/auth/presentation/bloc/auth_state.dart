@@ -12,6 +12,10 @@ class AuthInitial extends AuthState {}
 
 class AuthLoading extends AuthState {}
 
+class AuthLoadingEmail extends AuthState {}
+
+class AuthLoadingGoogle extends AuthState {}
+
 class AuthAuthenticated extends AuthState {
   final AuthUser user;
 
